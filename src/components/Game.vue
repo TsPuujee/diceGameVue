@@ -16,12 +16,19 @@
     >
       7 to 12
     </button>
-    <p class="text-white; mt-4">{{ resultMessage }}</p>
+    <div v-if="loading" class="mt-4">
+      <p class="text-white">Loading...</p>
+    </div>
+    <div v-else-if="image" class="mt-4">
+      <p class="text-white; mt-4">{{ resultMessage }}</p>
+      <img :src="image" alt="image" />
+    </div>
   </div>
 </template>
 
 <script>
 import lottie from "lottie-web";
+import axios from "axios"; 
 
 export default {
   data() {
@@ -30,6 +37,8 @@ export default {
       rightDiceAnimation: null,
       userPrediction: "2-6",
       resultMessage: "",
+      image: "",
+      loading: false,
       sevenTo12: [
         { dice_1: 1, dice_2: 6, Sum: 7 },
         { dice_1: 2, dice_2: 5, Sum: 7 },
@@ -74,8 +83,11 @@ export default {
   },
   mounted() {},
   methods: {
-    checkWin() {
-      return Math.floor(Math.random() * 100) % 2 === 0;
+    async checkWin() {
+      this.loading = true;
+      const res = await axios.get("https://yesno.wtf/api");
+      this.loading = false;
+      return res.data
     },
     rollDice(isWin, minRange, maxRange) {
       let rangeArray, leftRollKey, rightRollKey;
@@ -130,12 +142,14 @@ export default {
       });
     },
 
-    rollDiceAndCheck(predictionRange) {
+    async rollDiceAndCheck(predictionRange) {
       this.userPrediction = predictionRange;
-      const isWin = this.checkWin();
+      const { answer, image }  = await this.checkWin();
+      const isWin = answer === "yes";
       const [minRange, maxRange] = this.userPrediction.split("-");
       const { leftRoll, rightRoll } = this.rollDice(isWin, minRange, maxRange);
       const sum = leftRoll + rightRoll;
+      this.image = image
 
       if (sum >= parseInt(minRange) && sum <= parseInt(maxRange)) {
         this.resultMessage = `Congratulations! You rolled ${sum} (${leftRoll} + ${rightRoll}). Your prediction was correct!`;

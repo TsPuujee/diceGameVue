@@ -2,7 +2,9 @@
 
 Dice roller app built with Vue 3, Vite, Pinia, Vue Router & Tailwind CSS.
 
-build lottie file with Shinee
+Build lottie file by Shinee
+
+Using Yes or No API for random responses
 
 ## Dependencies 
 - [nodejs ^14.18.0](https://nodejs.org/)
